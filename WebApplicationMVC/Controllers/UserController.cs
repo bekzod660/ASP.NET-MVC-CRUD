@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApplicationMVC.Models;
+using X.PagedList;
 
 namespace WebApplicationMVC.Controllers
 {
@@ -7,15 +9,18 @@ namespace WebApplicationMVC.Controllers
     {
         private UserDbContext _db;
 
-        //public UserController(UserDbContext db)
-        //{
-        //    _db = db;
-        //}
+        public UserController(UserDbContext db)
+        {
+            _db = db;
+        }
 
         // [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(int pageNumber = 1)
         {
-            return View();
+            int pageSize = 4;
+            var onePageOfUsers = _db.Users.ToPagedList(pageNumber, pageSize);
+            // ViewData["Users"] = _db.Users.ToList();
+            return View(onePageOfUsers);
         }
 
 
@@ -25,11 +30,12 @@ namespace WebApplicationMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([Bind("Name,BirthDate")] User user)
+        public async Task<IActionResult> CreateUser([Bind("Name,BirthDate")] User user)
         {
+            // user.Id = 1;
             if (ModelState.IsValid)
             {
-                await _db.AddAsync(user);
+                await _db.Users.AddAsync(user);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -44,28 +50,57 @@ namespace WebApplicationMVC.Controllers
         //}
 
         [HttpPost]
-        public async Task<IActionResult> Update([Bind("Id,Name,BirthDate")] User user)
+        public async Task<IActionResult> Edit([Bind("Id,Name,BirthDate")] User user)
         {
             if (ModelState.IsValid)
             {
-                _db.Update(user);
+                _db.Users.Update(user);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(user);
         }
-
-        [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var user = _db.Users.FirstOrDefault(x => x.Id == id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+            User user = await _db.Users.FirstOrDefaultAsync(m => m.Id == id);
+            ViewData["DeleteUser"] = user;
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+        [HttpPost]
+        [ActionName("Delete")]
+        public async Task<IActionResult> DeleteId(int id)
+        {
+            User? user = _db.Users.FirstOrDefault(x => x.Id == id);
             if (ModelState.IsValid)
             {
-                _db.Remove(user);
+                _db.Users.Remove(user);
                 _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(user);
+        }
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await _db.Users.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            return View(employee);
         }
     }
 }

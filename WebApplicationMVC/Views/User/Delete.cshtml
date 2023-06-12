@@ -1,7 +1,7 @@
 ﻿@model WebApplicationMVC.Models.User
 
 @{
-    ViewData["Title"] = "Delete";
+    WebApplicationMVC.Models.User  user= ViewData["DeleteUser"] as @WebApplicationMVC.Models.User;
 }
 
 <h1>Delete</h1>
@@ -12,17 +12,18 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Id)
+            Id:  @user.Id  @*@Html.DisplayNameFor(model => model.Id)*@
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
+        <dt class = "col-sm-10">
+            Name:  @user.Name @*  @Html.DisplayFor(model => model.Name)*@
+        </dt>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BirthDate)
+            Date of Birth:   @user.BirthDate  @*  @Html.DisplayNameFor(model => model.BirthDate)*@
         </dt>
     </dl>
     <br />
-    <form asp-action="Delete">
+    <form action="@Url.Action("Delete","User")" method="post">
+   @* <form asp-action="Delete">*@
         <input type="hidden" asp-for="Id" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>

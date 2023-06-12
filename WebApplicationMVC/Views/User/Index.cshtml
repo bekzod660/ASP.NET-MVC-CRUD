@@ -1,7 +1,6 @@
-﻿@model IEnumerable<WebApplicationMVC.Models.User>?
-
+﻿@*@model WebApplicationMVC.Models.User
 @{
-    ViewData["Title"] = "Index";
+    List<User> user = ViewData["Users"] as List<User>;
 }
 
 <h1>Index</h1>
@@ -25,17 +24,17 @@
         </tr>
     </thead>
     <tbody>
-       @* @foreach (var item in Model)
+        @foreach (var item in @user)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
+                 @item.Id   @Html.DisplayFor(modelItem => item.Id)
+               </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    @item.Name   @Html.DisplayFor(modelItem => item.Name)
                 </td> 
                 <td>
-                    @Html.DisplayFor(modelItem => item.BirthDate)
+                    @item.BirthDate    @Html.DisplayFor(modelItem => item.BirthDate)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a> |
@@ -43,6 +42,66 @@
                     <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
-        }*@
+        }
     </tbody>
 </table>
+*@
+@model IEnumerable<WebApplicationMVC.Models.User>
+
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Students";
+    var pagedList = Model.ToPagedList(1, 4);
+    WebApplicationMVC.Models.User _user = new WebApplicationMVC.Models.User();
+}
+
+<h1>Users</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">   
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Birth of date</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                     @Html.DisplayFor(modelItem => item.BirthDate)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br />
+<div class="container fixed-bottom d-flex align-items-center justify-content-center">
+    @Html.PagedListPager((IPagedList)Model,page => Url.Action("Index", "User",new{pageNumber= page}),
+    new X.PagedList.Web.Common.PagedListRenderOptions
+    {
+    DisplayItemSliceAndTotal = false,
+    ContainerDivClasses = new[] { "navigation" },
+    LiElementClasses = new[] { "page-item" },
+    PageClasses = new[] { "page-link" },
+    })
+
+</div>
